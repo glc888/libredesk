@@ -70,5 +70,7 @@ jobs:
           context: .               # Docker构建上下文：使用当前仓库根目录，读取根目录Dockerfile
           push: true               # 构建完成后，自动推送镜像到DockerHub
           tags: |                  # 给镜像打2个标签
-            ${{ env.DOCKER_HUB_REPO }}:latest     # latest标签，代表最新镜像
-            ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}  # 使用git commit哈希作为版本标签，可追溯，每一次构建sha都不一样
+	 # latest标签，代表最新镜像
+            ${{ env.DOCKER_HUB_REPO }}:latest    
+	 # 使用git commit哈希作为版本标签，可追溯，每一次构建sha都不一样
+            ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }} 
