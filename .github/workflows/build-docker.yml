@@ -1,76 +1,57 @@
-# ---------------- 工作流名字 ----------------
 name: Build libredesk & Push DockerHub
 
-# ---------------- 触发条件：什么时候运行这个流水线 ----------------
 on:
   push:
-    branches: [ release-v2.7.1 ]     # 当git push推送到 main 分支时，自动执行CI
-  workflow_dispatch:        # 允许【手动点按钮】在Github网页触发流水线，不用提交代码
+    branches: [ release-v2.7.1 ]
+  workflow_dispatch:
 
-# ---------------- 全局环境变量，整个job都能用 ----------------
 env:
-  DOCKER_HUB_REPO: demidavid/libredesk-custom   # DockerHub镜像仓库地址，镜像就推送到这里
+  DOCKER_HUB_REPO: demidavid/libredesk-custom
 
-# ---------------- 任务：一个流水线可以有多个job，这里只有一个build任务 ----------------
 jobs:
   build:
-    runs-on: ubuntu-latest       # 使用Github提供的云虚拟机：最新版Ubuntu系统来跑构建
-
-    # 下面是job里面的步骤steps，从上往下顺序执行
+    runs-on: ubuntu-latest
     steps:
-      # 步骤1：拉取源代码到CI虚拟机
       - name: Checkout source code
         uses: actions/checkout@v4
-        # uses = 调用别人写好的action工具；把你仓库的代码下载到CI机器，没有这一步就没有源码
 
-      # 步骤2：安装make工具，LibreDesk编译用Makefile
       - name: Install make
         run: sudo apt update && sudo apt install -y make
-        # run: 在ubuntu终端执行shell命令；更新apt源，安装make编译工具
 
-      # 步骤3：配置Go语言环境（后端是Go写的）
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"     # 指定Go版本1.23
-          cache: true            # 开启Go模块缓存，加速下次构建，不用重复下载依赖
+          go-version: "1.23"
+          cache: true
 
-      # 步骤4：安装pnpm包管理器（前端用pnpm）
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9             # pnpm版本9
+          version: 9
 
-      # 步骤5：配置Node.js环境，前端编译依赖node
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 22       # Node版本22
+          node-version: 22
 
-      # 步骤6：编译前端，执行Makefile里面 frontend-build 脚本
       - name: Build frontend
         run: make frontend-build
-        # 内部就是执行pnpm install + pnpm build，打包出dist静态前端资源
 
-      # 步骤7：编译Go后端，执行make，编译出二进制可执行程序
       - name: Build go backend binary
         run: make
 
-      # 步骤8：登录DockerHub，必须登录才可以push镜像
       - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}   # 读取仓库配置的保密变量：DockerHub账号
-          password: ${{ secrets.DOCKERHUB_TOKEN }}       # 读取保密变量：DockerHub访问令牌，不要明文写在yaml
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 步骤9：构建Docker镜像，并且push推送到DockerHub
       - name: Build & Push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .               # Docker构建上下文：使用当前仓库根目录，读取根目录Dockerfile
-          push: true               # 构建完成后，自动推送镜像到DockerHub
-          tags: |                  # 给镜像打2个标签
-	 # latest标签，代表最新镜像
-            ${{ env.DOCKER_HUB_REPO }}:latest    
-	 # 使用git commit哈希作为版本标签，可追溯，每一次构建sha都不一样
-            ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }} 
+          context: .
+          push: true
+          no-cache: true
+          tags: |
+            ${{ env.DOCKER_HUB_REPO }}:latest
+            ${{ env.DOCKER_HUB_REPO }}:${{ github.sha }}
