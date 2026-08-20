@@ -4,7 +4,7 @@ name: Build libredesk & Push DockerHub
 # ---------------- 触发条件：什么时候运行这个流水线 ----------------
 on:
   push:
-    branches: [ release‑v2.7.1 ]      # 当git push推送到 main 分支时，自动执行CI
+    branches: [ release-v2.7.1 ]     # 当git push推送到 main 分支时，自动执行CI
   workflow_dispatch:        # 允许【手动点按钮】在Github网页触发流水线，不用提交代码
 
 # ---------------- 全局环境变量，整个job都能用 ----------------
