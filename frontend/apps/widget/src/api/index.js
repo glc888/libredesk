@@ -100,15 +100,6 @@ http.interceptors.request.use((request) => {
         if (visitorTokenForMerge) {
             request.headers['X-Libredesk-Visitor-Token'] = visitorTokenForMerge
         }
-        // ✅使用endsWith匹配，兼容完整http绝对url
-        // if(_sessionToken && request.url?.endsWith("/api/v1/widget/chat/conversations")){
-        //     return Promise.resolve({
-        //         data: {
-        //             status:"success",
-        //             data: []
-        //         }
-        //     })
-        // }
     }
 
     return request
@@ -120,18 +111,17 @@ http.interceptors.response.use(
             clearVisitorToken()
         }
 
-        // JWT登录模式：匹配 GET /api/v1/widget/chat/conversations/{uuid} 单会话详情接口
-        if (_sessionToken && response.config.url) {
-            const url = response.config.url
-            // 匹配 /api/v1/widget/chat/conversations/xxxx‑uuid‑xxxx，排除不带uuid的列表接口
-            if (url.includes("/api/v1/widget/chat/conversations/")
-                && !url.endsWith("/api/v1/widget/chat/conversations")) {
-                // 会话对象保留，仅仅清空messages历史消息
-                if(response.data?.data?.messages){
-                    response.data.data.messages = []
-                }
-            }
+       // JWT模式：仅GET /conversations/{uuid}会话详情，清空messages历史消息
+      if (_sessionToken && response.config.method === 'get') {
+      const url = response.config.url
+      // 精准匹配：conversations/{uuid}，末尾不能再有子路径
+      const conversationDetailReg = /\/api\/v1\/widget\/chat\/conversations\/[^/]+$/
+      if (conversationDetailReg.test(url)) {
+        if (response.data?.data?.messages) {
+          response.data.data.messages = []
         }
+      }
+    }
 
         return response
     },
