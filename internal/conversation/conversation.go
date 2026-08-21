@@ -82,6 +82,7 @@ var conversationListAllowedFields = dbutil.AllowedFields{
 
 // Manager handles the operations related to conversations
 type Manager struct {
+	WidgetMsgLimit int // 新增，livechat挂件单次拉取消息上限
 	q                          queries
 	inboxStore                 inboxStore
 	userStore                  userStore
@@ -289,6 +290,8 @@ func New(
 		outgoingProcessingMessages: sync.Map{},
 		continuityConfig:           continuityConfig,
 		subjectRefFormat:           subjectRefFormat,
+		// ↓这里补上默认值！！
+		WidgetMsgLimit:             20,
 	}
 
 	return c, nil
@@ -1993,7 +1996,8 @@ func (m *Manager) BuildWidgetConversationResponse(conversation models.Conversati
 	if includeMessages {
 		private := false
 		// Fetch last 400 messages.
-		messages, _, err := m.GetConversationMessages(conversation.UUID, 1, 20, &private, []string{models.MessageIncoming, models.MessageOutgoing})
+		// messages, _, err := m.GetConversationMessages(conversation.UUID, 1, 20, &private, []string{models.MessageIncoming, models.MessageOutgoing})
+		messages, _, err := m.GetConversationMessages(conversation.UUID, 1, m.WidgetMsgLimit, &private, []string{models.MessageIncoming, models.MessageOutgoing})
 		if err != nil {
 			m.lo.Error("error fetching conversation messages", "conversation_uuid", conversation.UUID, "error", err)
 			return resp, envelope.NewError(envelope.GeneralError, "Error fetching messages", nil)

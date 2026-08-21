@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv" // ←新增这一行
 	"path/filepath"
 	"strings"
 	"time"
@@ -315,6 +316,15 @@ func initConversations(
 	if err != nil {
 		log.Fatalf("error initializing conversation manager: %v", err)
 	}
+
+	// =========在这里插入读取环境变量的代码=========
+	// 读取 LIBREDESK_WIDGET_MSG_LIMIT
+	if envStr := os.Getenv("LIBREDESK_WIDGET_MSG_LIMIT"); envStr != "" {
+		if val, err := strconv.Atoi(envStr); err == nil && val > 0 {
+			c.WidgetMsgLimit = val
+		}
+	}
+	
 	return c
 }
 
