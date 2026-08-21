@@ -119,6 +119,20 @@ http.interceptors.response.use(
         if (response.headers['x-libredesk-clear-visitor']) {
             clearVisitorToken()
         }
+
+        // JWT登录模式：匹配 GET /api/v1/widget/chat/conversations/{uuid} 单会话详情接口
+        if (_sessionToken && response.config.url) {
+            const url = response.config.url
+            // 匹配 /api/v1/widget/chat/conversations/xxxx‑uuid‑xxxx，排除不带uuid的列表接口
+            if (url.includes("/api/v1/widget/chat/conversations/")
+                && !url.endsWith("/api/v1/widget/chat/conversations")) {
+                // 会话对象保留，仅仅清空messages历史消息
+                if(response.data?.data?.messages){
+                    response.data.data.messages = []
+                }
+            }
+        }
+
         return response
     },
     (error) => {
@@ -179,5 +193,4 @@ export default {
     updateConversationLastSeen,
     submitCSATResponse
 }
-//`_sessionToken` 必须**导出**
-export {_sessionToken}
+

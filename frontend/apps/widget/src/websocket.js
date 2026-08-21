@@ -3,9 +3,7 @@ import { useChatStore } from './store/chat.js'
 import { useWidgetStore } from './store/widget.js'
 import { playNotificationSound } from '@shared-ui/composables/useNotificationSound.js'
 
-// 需要把 `_sessionToken` 从 `./api/index.js` 导入到 websocket.js
-// `_sessionToken` 有值 = JWT 登录用户；为空 = 匿名访客。
-import { _sessionToken } from './api/index'
+
 
 
 export const WS_EVENT = {
@@ -134,8 +132,6 @@ export class WidgetWebSocketClient {
           }
         },
         [WS_EVENT.CONVERSATION_UPDATE]: () => {
-         // // JWT登录模式，直接忽略后端推送过来的历史会话更新
-        //  //if (_sessionToken) return
           if (data.data) {
             chatStore.updateCurrentConversation(data.data)
           }
@@ -281,10 +277,7 @@ export class WidgetWebSocketClient {
     this.send(joinMessage)
   }
 
-  async syncMissedMessages (attempt = 0) {
-    // ✅新增：JWT登录用户，直接跳过会话同步逻辑
-    //if (_sessionToken) return
-    
+  async syncMissedMessages (attempt = 0) { 
     const now = Date.now()
     if (attempt === 0 && now - this.lastSyncAt < 2000) return
     this.lastSyncAt = now
