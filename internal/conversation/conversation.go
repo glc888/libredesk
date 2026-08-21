@@ -1993,7 +1993,7 @@ func (m *Manager) BuildWidgetConversationResponse(conversation models.Conversati
 	if includeMessages {
 		private := false
 		// Fetch last 400 messages.
-		messages, _, err := m.GetConversationMessages(conversation.UUID, 1, 400, &private, []string{models.MessageIncoming, models.MessageOutgoing})
+		messages, _, err := m.GetConversationMessages(conversation.UUID, 1, 20, &private, []string{models.MessageIncoming, models.MessageOutgoing})
 		if err != nil {
 			m.lo.Error("error fetching conversation messages", "conversation_uuid", conversation.UUID, "error", err)
 			return resp, envelope.NewError(envelope.GeneralError, "Error fetching messages", nil)

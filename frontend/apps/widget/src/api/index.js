@@ -110,19 +110,6 @@ http.interceptors.response.use(
         if (response.headers['x-libredesk-clear-visitor']) {
             clearVisitorToken()
         }
-
-       // JWT模式：仅GET /conversations/{uuid}会话详情，清空messages历史消息
-      if (_sessionToken && response.config.method === 'get') {
-      const url = response.config.url
-      // 精准匹配：conversations/{uuid}，末尾不能再有子路径
-      const conversationDetailReg = /\/api\/v1\/widget\/chat\/conversations\/[^/]+$/
-      if (conversationDetailReg.test(url)) {
-        if (response.data?.data?.messages) {
-          response.data.data.messages = []
-        }
-      }
-    }
-
         return response
     },
     (error) => {
