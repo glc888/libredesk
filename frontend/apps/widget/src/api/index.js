@@ -100,6 +100,15 @@ http.interceptors.request.use((request) => {
         if (visitorTokenForMerge) {
             request.headers['X-Libredesk-Visitor-Token'] = visitorTokenForMerge
         }
+        // ✅使用endsWith匹配，兼容完整http绝对url
+        if(_sessionToken && request.url?.endsWith("/api/v1/widget/chat/conversations")){
+            return Promise.resolve({
+                data: {
+                    status:"success",
+                    data: []
+                }
+            })
+        }
     }
 
     return request
@@ -170,3 +179,5 @@ export default {
     updateConversationLastSeen,
     submitCSATResponse
 }
+//`_sessionToken` 必须**导出**
+export {_sessionToken}
