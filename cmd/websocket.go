@@ -22,24 +22,37 @@ func ErrHandler(ctx *fasthttp.RequestCtx, status int, reason error) {
 var agentUpgrader = websocket.FastHTTPUpgrader{
 	ReadBufferSize:  8192,
 	WriteBufferSize: 8192,
+	// CheckOrigin: func(ctx *fasthttp.RequestCtx) bool {
+	// 	origin := string(ctx.Request.Header.Peek("Origin"))
+	// 	if origin == "" {
+	// 		return false
+	// 	}
+	// 	u, err := url.Parse(origin)
+	// 	if err != nil || u.Host == "" {
+	// 		return false
+	// 	}
+	// 	isLocalhost := u.Hostname() == "localhost"
+	// 	if u.Scheme != "https" && !isLocalhost {
+	// 		return false
+	// 	}
+	// 	if strings.EqualFold(u.Host, string(ctx.Request.Host())) {
+	// 		return true
+	// 	}
+	// 	return isLocalhost
+	// },
 	CheckOrigin: func(ctx *fasthttp.RequestCtx) bool {
 		origin := string(ctx.Request.Header.Peek("Origin"))
-		if origin == "" {
-			return false
+		// 把你实际访问的源写在这里，可以多个
+		allowed := map[string]bool{
+		"http://192.168.1.229": true,
+		// 如果以后上域名HTTPS就加 "https://xxx.com": true,
 		}
-		u, err := url.Parse(origin)
-		if err != nil || u.Host == "" {
-			return false
-		}
-		isLocalhost := u.Hostname() == "localhost"
-		if u.Scheme != "https" && !isLocalhost {
-			return false
-		}
-		if strings.EqualFold(u.Host, string(ctx.Request.Host())) {
+		if allowed[origin] {
 			return true
 		}
-		return isLocalhost
+		return false
 	},
+
 	Error: ErrHandler,
 }
 
