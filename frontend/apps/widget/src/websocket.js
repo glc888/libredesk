@@ -134,8 +134,8 @@ export class WidgetWebSocketClient {
           }
         },
         [WS_EVENT.CONVERSATION_UPDATE]: () => {
-          // JWT登录模式，直接忽略后端推送过来的历史会话更新
-          if (_sessionToken) return
+         // // JWT登录模式，直接忽略后端推送过来的历史会话更新
+        //  //if (_sessionToken) return
           if (data.data) {
             chatStore.updateCurrentConversation(data.data)
           }
