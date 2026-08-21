@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/url"
-	"strings"
+	//"net/url"
+	//"strings"
 
 	amodels "github.com/abhinavxd/libredesk/internal/auth/models"
 	"github.com/abhinavxd/libredesk/internal/ws"
