@@ -283,7 +283,7 @@ export class WidgetWebSocketClient {
 
   async syncMissedMessages (attempt = 0) {
     // ✅新增：JWT登录用户，直接跳过会话同步逻辑
-    if (_sessionToken) return
+    //if (_sessionToken) return
     
     const now = Date.now()
     if (attempt === 0 && now - this.lastSyncAt < 2000) return
