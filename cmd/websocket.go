@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	//"net/url"
-	//"strings"
+	//"net/url" //删除
+	//"strings" //删除
+	"os"       // ←新增
+	"strings"  // ←新增
 
 	amodels "github.com/abhinavxd/libredesk/internal/auth/models"
 	"github.com/abhinavxd/libredesk/internal/ws"
@@ -12,6 +14,15 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/zerodha/fastglue"
 )
+
+var allowedOrigins []string
+// init 在程序启动时执行，读取环境变量
+func init() {
+	envVal := os.Getenv("LIBREDESK_WS_ALLOWED_ORIGINS")
+	if envVal != "" {
+		allowedOrigins = strings.Split(envVal, ",")
+	}
+}
 
 // ErrHandler is a custom error handler.
 func ErrHandler(ctx *fasthttp.RequestCtx, status int, reason error) {
@@ -42,13 +53,10 @@ var agentUpgrader = websocket.FastHTTPUpgrader{
 	// },
 	CheckOrigin: func(ctx *fasthttp.RequestCtx) bool {
 		origin := string(ctx.Request.Header.Peek("Origin"))
-		// 把你实际访问的源写在这里，可以多个
-		allowed := map[string]bool{
-		"http://192.168.1.229": true,
-		// 如果以后上域名HTTPS就加 "https://xxx.com": true,
-		}
-		if allowed[origin] {
-			return true
+		for _, item := range allowedOrigins {
+			if item == origin {
+				return true
+			}
 		}
 		return false
 	},
