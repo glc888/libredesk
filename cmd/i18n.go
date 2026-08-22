@@ -28,7 +28,73 @@ func handleGetI18nLang(r *fastglue.Request) error {
 	if err != nil {
 		return sendErrorEnvelope(r, err)
 	}
-	return r.SendBytes(http.StatusOK, "application/json", i.JSON())
+	// return r.SendBytes(http.StatusOK, "application/json", i.JSON())
+
+	// 拿到完整JSON字节
+	fullJSON := i.JSON()
+
+	// 反序列化为map
+	var fullDict map[string]string
+	if err := json.Unmarshal([]byte(fullJSON), &fullDict); err != nil {
+		return sendErrorEnvelope(r, err)
+	}
+
+	// 黑名单前缀，剔除后台管理key
+	blockPrefixes := []string{
+	"actions.",
+	"activityLog.",
+	"admin.",
+	"agent.",
+	"auth.",
+	"automation.",
+	"businessHour.",
+	"confirm.",
+	"contextLink.",
+	"copilot.",
+	"customAttribute.",
+	"importer.",
+	"macro.",
+	"notification.",
+	"oidc.",
+	"report.",
+	"replyBox.",
+	"role.",
+	"sla.",
+	"status.",
+	"tag.",
+	"team.",
+	"template.",
+	"user.",
+	"view.",
+	"webhook.",
+	"setup.",
+	"shortcuts.",
+	"navigation.",
+	}
+
+
+	filtered := make(map[string]string)
+outer:
+	for k, v := range fullDict {
+		for _, prefix := range blockPrefixes {
+			if strings.HasPrefix(k, prefix) {
+				continue outer
+			}
+		}
+		filtered[k] = v
+	}
+
+	// 序列化为压缩无缩进JSON
+	outBytes, err := json.Marshal(filtered)
+	if err != nil {
+		return sendErrorEnvelope(r, err)
+	}
+
+	// 设置缓存头
+	r.ResponseWriter.Header().Set("Cache‑Control", "public, max‑age=86400")
+	r.ResponseWriter.Header().Set("Content‑Type", "application/json; charset=utf‑8")
+
+	return r.SendBytes(http.StatusOK, "application/json", outBytes)
 }
 
 // handleGetAvailableLanguages returns the list of available languages
