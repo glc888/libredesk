@@ -128,7 +128,8 @@ http.interceptors.response.use(
 const getWidgetSettings = (inboxID) => http.get('/api/v1/widget/chat/settings', {
     params: { inbox_id: inboxID }
 })
-const getLanguage = (lang) => http.get(`/api/v1/lang/${lang}`)
+// const getLanguage = (lang) => http.get(`/api/v1/lang/${lang}`)
+const getLanguage = (lang) => http.get(`/api/v1/widget-lang/${lang}`)
 const getAvailableLanguages = () => http.get('/api/v1/lang')
 const exchangeJWTForSession = (jwt) => http.post('/api/v1/widget/chat/auth/exchange', { jwt })
 const getAuthMe = () => http.get('/api/v1/widget/chat/auth/me')

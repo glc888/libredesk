@@ -27,6 +27,8 @@ func initHandlers(g *fastglue.Fastglue, hub *ws.Hub) {
 	// i18n.
 	g.GET("/api/v1/lang", handleGetAvailableLanguages)
 	g.GET("/api/v1/lang/{lang}", handleGetI18nLang)
+	g.GET("/api/v1/widget-lang/{lang}", handleGetWidgetI18nLang)
+
 
 	// Public config for app initialization.
 	g.GET("/api/v1/config", handleGetConfig)

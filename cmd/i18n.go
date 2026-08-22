@@ -28,56 +28,46 @@ func handleGetI18nLang(r *fastglue.Request) error {
 	if err != nil {
 		return sendErrorEnvelope(r, err)
 	}
+	return r.SendBytes(http.StatusOK, "application/json", i.JSON())
+}
+
+// handleGetWidgetI18nLang 挂件专用精简语言包接口 /api/v1/widget-lang/{lang}
+func handleGetWidgetI18nLang(r *fastglue.Request) error {
+	var (
+		app  = r.Context.(*App)
+		lang = r.RequestCtx.UserValue("lang").(string)
+	)
+
+	i, err := loadI18nLang(lang, app.fs)
+	if err != nil {
+		return sendErrorEnvelope(r, err)
+	}
 
 	fullJSON := i.JSON()
-
 	var fullDict map[string]string
 	if err := json.Unmarshal([]byte(fullJSON), &fullDict); err != nil {
 		return sendErrorEnvelope(r, err)
 	}
 
-	// 黑名单前缀，剔除后台管理key
-	blockPrefixes := []string{
-		"actions.",
-		"activityLog.",
-		"admin.",
-		"agent.",
-		"auth.",
-		"automation.",
-		"businessHour.",
-		"confirm.",
-		"contextLink.",
-		"copilot.",
-		"customAttribute.",
-		"importer.",
-		"macro.",
-		"notification.",
-		"oidc.",
-		"report.",
-		"replyBox.",
-		"role.",
-		"sla.",
-		"status.",
-		"tag.",
-		"team.",
-		"template.",
-		"user.",
-		"view.",
-		"webhook.",
-		"setup.",
-		"shortcuts.",
-		"navigation.",
+	// 白名单：仅保留挂件+CSAT需要的key前缀
+	allowPrefix := []string{
+		"_.",
+		"widget.",
+		"csat.",
+		"globals.messages.",
+		"media.",
 	}
 
 	filtered := make(map[string]string)
 outer:
 	for k, v := range fullDict {
-		for _, prefix := range blockPrefixes {
-			if strings.HasPrefix(k, prefix) {
+		for _, p := range allowPrefix {
+			if strings.HasPrefix(k, p) {
+				filtered[k] = v
 				continue outer
 			}
 		}
-		filtered[k] = v
+		// 不在白名单直接丢弃
 	}
 
 	outBytes, err := json.Marshal(filtered)
@@ -85,11 +75,13 @@ outer:
 		return sendErrorEnvelope(r, err)
 	}
 
-	// fasthttp 设置缓存响应头
+	// 挂件开启浏览器缓存1天
 	r.RequestCtx.Response.Header.Set("Cache-Control", "public, max-age=86400")
-
 	return r.SendBytes(http.StatusOK, "application/json", outBytes)
 }
+
+
+
 
 
 // handleGetAvailableLanguages returns the list of available languages
