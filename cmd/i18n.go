@@ -59,6 +59,8 @@ func handleGetWidgetI18nLang(r *fastglue.Request) error {
 		"globals.terms.message",
 		"globals.terms.typeMessage",
 		"globals.messages.continueConversation",
+		"globals.messages.connecting",
+		"globals.messages.connected",
 		"globals.messages.copied",
 		"media.",
 	}
