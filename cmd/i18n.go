@@ -28,12 +28,9 @@ func handleGetI18nLang(r *fastglue.Request) error {
 	if err != nil {
 		return sendErrorEnvelope(r, err)
 	}
-	// return r.SendBytes(http.StatusOK, "application/json", i.JSON())
 
-	// 拿到完整JSON字节
 	fullJSON := i.JSON()
 
-	// 反序列化为map
 	var fullDict map[string]string
 	if err := json.Unmarshal([]byte(fullJSON), &fullDict); err != nil {
 		return sendErrorEnvelope(r, err)
@@ -41,37 +38,36 @@ func handleGetI18nLang(r *fastglue.Request) error {
 
 	// 黑名单前缀，剔除后台管理key
 	blockPrefixes := []string{
-	"actions.",
-	"activityLog.",
-	"admin.",
-	"agent.",
-	"auth.",
-	"automation.",
-	"businessHour.",
-	"confirm.",
-	"contextLink.",
-	"copilot.",
-	"customAttribute.",
-	"importer.",
-	"macro.",
-	"notification.",
-	"oidc.",
-	"report.",
-	"replyBox.",
-	"role.",
-	"sla.",
-	"status.",
-	"tag.",
-	"team.",
-	"template.",
-	"user.",
-	"view.",
-	"webhook.",
-	"setup.",
-	"shortcuts.",
-	"navigation.",
+		"actions.",
+		"activityLog.",
+		"admin.",
+		"agent.",
+		"auth.",
+		"automation.",
+		"businessHour.",
+		"confirm.",
+		"contextLink.",
+		"copilot.",
+		"customAttribute.",
+		"importer.",
+		"macro.",
+		"notification.",
+		"oidc.",
+		"report.",
+		"replyBox.",
+		"role.",
+		"sla.",
+		"status.",
+		"tag.",
+		"team.",
+		"template.",
+		"user.",
+		"view.",
+		"webhook.",
+		"setup.",
+		"shortcuts.",
+		"navigation.",
 	}
-
 
 	filtered := make(map[string]string)
 outer:
@@ -84,18 +80,17 @@ outer:
 		filtered[k] = v
 	}
 
-	// 序列化为压缩无缩进JSON
 	outBytes, err := json.Marshal(filtered)
 	if err != nil {
 		return sendErrorEnvelope(r, err)
 	}
 
-	// ✅修复：fastglue 用 r.SetHeader() 设置响应头，不要碰 ResponseWriter
-	r.SetHeader("Cache‑Control", "public, max‑age=86400")
-	r.SetHeader("Content‑Type", "application/json; charset=utf‑8")
+	// fasthttp 设置缓存响应头
+	r.RequestCtx.Response.Header.Set("Cache-Control", "public, max-age=86400")
 
 	return r.SendBytes(http.StatusOK, "application/json", outBytes)
 }
+
 
 // handleGetAvailableLanguages returns the list of available languages
 // by reading all JSON files from the /i18n/ directory in the embedded filesystem.
