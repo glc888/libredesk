@@ -90,9 +90,9 @@ outer:
 		return sendErrorEnvelope(r, err)
 	}
 
-	// 设置缓存头
-	r.ResponseWriter.Header().Set("Cache‑Control", "public, max‑age=86400")
-	r.ResponseWriter.Header().Set("Content‑Type", "application/json; charset=utf‑8")
+	// ✅修复：fastglue 用 r.SetHeader() 设置响应头，不要碰 ResponseWriter
+	r.SetHeader("Cache‑Control", "public, max‑age=86400")
+	r.SetHeader("Content‑Type", "application/json; charset=utf‑8")
 
 	return r.SendBytes(http.StatusOK, "application/json", outBytes)
 }
