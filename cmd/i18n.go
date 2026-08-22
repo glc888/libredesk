@@ -54,7 +54,10 @@ func handleGetWidgetI18nLang(r *fastglue.Request) error {
 		"_.",
 		"widget.",
 		"csat.",
-		"globals.messages.",
+		"globals.terms.you",
+		"globals.terms.home",
+		"globals.terms.message",
+		"globals.terms.typeMessage",
 		"media.",
 	}
 
