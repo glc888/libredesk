@@ -9,8 +9,6 @@ WORKDIR /libredesk
 # Copy necessary files
 COPY libredesk .
 COPY config.sample.toml config.toml
-# 新增这一行：把i18n整个目录复制进镜像
-COPY ./i18n ./i18n
 
 # Expose port 9000 for the application
 EXPOSE 9000
