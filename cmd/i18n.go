@@ -61,6 +61,7 @@ func handleGetWidgetI18nLang(r *fastglue.Request) error {
 		"globals.messages.continueConversation",
 		"globals.messages.connecting",
 		"globals.messages.connected",
+		"globals.messages.noMessagesYet",
 		"globals.messages.copied",
 		"media.",
 	}
@@ -83,7 +84,7 @@ outer:
 	}
 
 	// 挂件开启浏览器缓存1天
-	r.RequestCtx.Response.Header.Set("Cache-Control", "public, max-age=86400")
+	//r.RequestCtx.Response.Header.Set("Cache-Control", "public, max-age=86400")
 	return r.SendBytes(http.StatusOK, "application/json", outBytes)
 }
 
